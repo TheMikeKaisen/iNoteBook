@@ -1,6 +1,1 @@
-Storing data into the DataBase using mongoose model
-
-//const user = User(req.body)
-//user.save()
-here whatever we add in thunder client server body, it will be accessed as user and then
-res.send(req.body) will add the data to the database and we can see it in the mongodb
+Express validator : whenever we add some parameters to our input data to our database, we can add some restrictions, such as length, check if it an email or not and more. For this purpose we use express validators.
