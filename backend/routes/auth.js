@@ -1,8 +1,10 @@
 const express = require('express')
 const { body, validationResult } = require('express-validator'); // validationResult will return the errors in the input data
-
-const User = require('../models/User')
+const bcrypt = require("bcryptjs")
 const router = express.Router()
+const User = require('../models/User')
+const jwt = require('jsonwebtoken')
+
 
 // Create a user using: POST "/api/auth/createuser"
 router.post('/createuser',[
@@ -19,15 +21,26 @@ router.post('/createuser',[
     if(user){
         return res.status(404).json({error: "a user with this email already exists."})
     }
+
+    // both genSalt() and hash() are promises. Thus we will have to use async await function.
+    const salt = await  bcrypt.genSalt(10); // creating salt to the password
+    const secPass = await bcrypt.hash(req.body.password, salt); //adding salt to the password
+
+    // creating a new user
     user = await User.create({ //will run if there is no error 
         name: req.body.name, // declaring name of the user
         email: req.body.email, //declaring email of the user
-        password: req.body.password //declaring password of the user
+        password:  secPass,
     })
-    // .then(user=> res.json(user)) //will send the input data to the database ('user' is defined in User)
-    // .catch(err=> {console.log(err) //when the same json file is send again, it will lead to an error as it no longer sends a unique data (unique email). Thus .catch will print the error in the console
-    // res.json({error: "please enter a unique value for email"})}) // even when the error in printed in the console, server will continue to load as it cannot find any unique value. Thus res.json will print the error and resolve the problem
-    res.json(user);
+
+    const JWT_SECRET = "karthikIsAGoodBOY" // a token will be generated for this secret message
+    const data = {
+        user: {
+        id : user.id //as id is the index of the database, it is easy to create token using id
+        }
+    }
+    const authtoken = jwt.sign(data, JWT_SECRET); // creating token
+    res.json({authtoken}); // returning token 
     } catch(error){
         console.log(error.message);
         res.status(500).send("some error occured.")
