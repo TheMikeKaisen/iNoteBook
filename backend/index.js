@@ -3,7 +3,7 @@
  connectToMongo();
 
 const app = express()
-const port = 3000
+const port = 5000 // port is set to 5000 because localhost port 3000 will be working for React application
 
 app.use(express.json())
 
