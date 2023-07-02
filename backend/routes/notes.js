@@ -73,5 +73,26 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+// ROUTE 4: Delete Note using: DELETE "/api/note/deletenote/:id". Login required
+router.delete('/deletenote/:id', fetchuser, async (req, res) => {
+    
+    try {
+        // Finding the note
+        let note = await Note.findOne({ _id: req.params.id });
+        if (!note) {
+            return res.status(404).send("Couldn't find the note.");
+        }
+
+        if (note.user.toString() !== req.user.id) {
+            return res.status(401).send("Not allowed");
+        }
+
+        note = await Note.findByIdAndDelete(req.params.id);
+        res.json({ "success":"note has been deleted", note: note });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
 module.exports = router;
 
